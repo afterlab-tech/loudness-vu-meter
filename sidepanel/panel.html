@@ -10,6 +10,10 @@
   <header class="top">
     <div class="brand"><svg class="logo" viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="8" width="3.4" height="6" rx="1" fill="#3ee08f"/><rect x="5.3" y="4" width="3.4" height="10" rx="1" fill="#ffbf3c"/><rect x="10.6" y="0" width="3.4" height="14" rx="1" fill="#ff4d4f"/></svg>LOUDNESS<span class="dot">·</span>VU</div>
     <div class="status" id="status" data-kind="idle"><i></i><span>接続中…</span></div>
+    <button id="themeBtn" class="icon-btn" type="button" title="ライト / ダーク切替" aria-label="ライト / ダーク切替">
+      <svg class="ic-moon" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6.2 1.3a6.8 6.8 0 1 0 8.5 8.5A5.6 5.6 0 0 1 6.2 1.3z"/></svg>
+      <svg class="ic-sun" viewBox="0 0 16 16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></g></svg>
+    </button>
   </header>
   <div class="source" id="source" title="">—</div>
   <div class="notice" id="notice" hidden></div>
@@ -32,7 +36,7 @@
     <div class="readouts">
       <div class="ro" id="roS"><label>SHORT-TERM</label><b>—</b><small>LUFS</small></div>
       <div class="ro" id="roI"><label>INTEGRATED</label><b>—</b><small>LUFS</small></div>
-      <div class="ro" id="roTP"><label>TRUE PEAK MAX</label><b>—</b><small>dBTP</small></div>
+      <div class="ro" id="roTP"><label>TRUE PEAK</label><b>—</b><small>dBTP max</small></div>
     </div>
 
     <dl class="minis">
@@ -50,8 +54,16 @@
 
   <section class="settings">
     <div class="row">
+      <span class="lbl">テーマ</span>
+      <div class="seg" id="theme" role="radiogroup">
+        <button type="button" data-v="auto" role="radio">自動</button>
+        <button type="button" data-v="light" role="radio">ライト</button>
+        <button type="button" data-v="dark" role="radio">ダーク</button>
+      </div>
+    </div>
+    <div class="row">
       <span class="lbl">ターゲット</span>
-      <div class="seg" id="target" role="radiogroup">
+      <div class="seg mono" id="target" role="radiogroup">
         <button type="button" data-v="-14" role="radio">−14 LUFS</button>
         <button type="button" data-v="-23" role="radio">−23 LUFS</button>
       </div>

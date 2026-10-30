@@ -15,7 +15,7 @@ const VU_MINOR = [-15, -9, -8, -6, -4, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5];
 const STALE_MS = 2500;
 const PEAK_LED_DBTP = -1;
 const PEAK_LED_HOLD_MS = 1000;
-const DEFAULTS = { target: -14, vuRef: -18, autoReset: true };
+const DEFAULTS = { target: -14, vuRef: -18, autoReset: true, theme: 'auto' };
 
 const settings = { ...DEFAULTS };
 const $ = (id) => document.getElementById(id);
@@ -179,6 +179,42 @@ function deriveStatus(chosen) {
   return { kind: 'wait', text: '再生待ち' };
 }
 
+// ---------------------------------------------------------------- theme
+
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+let C = {}; // canvas colours from the CSS theme tokens
+
+function readPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = (name) => cs.getPropertyValue(name).trim();
+  C = {
+    bezel: v('--cv-bezel'),
+    track: v('--cv-track'),
+    groove: v('--cv-groove'),
+    grid: v('--cv-grid'),
+    axis: v('--cv-axis'),
+    label: v('--cv-label'),
+    histBg: v('--cv-hist-bg'),
+    histM: v('--cv-hist-m'),
+    histS: v('--cv-hist-s'),
+    target: v('--cv-target'),
+    over: v('--cv-over'),
+    hold: v('--cv-hold'),
+    lo: v('--meter-lo'),
+    ok: v('--meter-ok'),
+    warn: v('--meter-warn'),
+    hot: v('--meter-over'),
+  };
+}
+
+const isDark = () => (settings.theme === 'auto' ? darkQuery.matches : settings.theme === 'dark');
+
+function applyTheme() {
+  if (settings.theme === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = settings.theme;
+  readPalette();
+}
+
 // ---------------------------------------------------------------- canvas utils
 
 function prep(cv) {
@@ -212,7 +248,7 @@ function roundRect(g, x, y, w, h, r) {
 const vuToPos = (vu) => Math.pow(10, vu / 20) / VU_FULL;
 
 function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
-  g.fillStyle = '#08090b';
+  g.fillStyle = C.bezel;
   roundRect(g, x, y, w, h, 8);
   g.fill();
 
@@ -269,7 +305,7 @@ function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
 
   for (const m of VU_MINOR) tick(vuToPos(m), 5 * s, m >= 0 ? '#c42a1f' : '#3a3122', Math.max(0.8, 0.8 * s));
 
-  const fontSize = Math.max(8, 9.5 * s);
+  const fontSize = Math.max(10, 10.5 * s);
   g.font = `600 ${fontSize}px ui-sans-serif, system-ui, sans-serif`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
@@ -283,12 +319,12 @@ function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
   }
 
   // Modulation % scale under the arc (100% = 0 VU).
-  g.font = `${Math.max(7, 7 * s)}px ui-sans-serif, system-ui, sans-serif`;
+  g.font = `600 ${Math.max(8, 7.5 * s)}px ui-sans-serif, system-ui, sans-serif`;
   for (let pct = 0; pct <= 100; pct += 20) {
     const a = ang((pct / 100) * p0);
     const [x1, y1] = pt(a, rArc - 2 * s);
     const [x2, y2] = pt(a, rArc - 6 * s);
-    g.strokeStyle = '#5c5038';
+    g.strokeStyle = '#4d4230';
     g.lineWidth = Math.max(0.8, 0.8 * s);
     g.beginPath();
     g.moveTo(x1, y1);
@@ -296,7 +332,7 @@ function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
     g.stroke();
     if (pct % 50 === 0) {
       const [lx, ly] = pt(a, rArc - 12 * s);
-      g.fillStyle = '#6e6045';
+      g.fillStyle = '#54482f';
       g.fillText(String(pct), lx, ly);
     }
   }
@@ -306,8 +342,8 @@ function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
   g.fillText('VU', cx, fy + fh * 0.62);
 
   g.textAlign = 'left';
-  g.font = `700 ${Math.max(9, 10 * s)}px ui-sans-serif, system-ui, sans-serif`;
-  g.fillStyle = '#5c5038';
+  g.font = `700 ${Math.max(10.5, 11 * s)}px ui-sans-serif, system-ui, sans-serif`;
+  g.fillStyle = '#4d4230';
   g.fillText(label, fx + 7 * s, fy + fh - 9 * s);
 
   // Peak LED.
@@ -328,8 +364,8 @@ function drawVuMeter(g, x, y, w, h, pos, label, ledOn) {
   g.arc(lx, ly, lr, 0, Math.PI * 2);
   g.fill();
   g.textAlign = 'right';
-  g.font = `600 ${Math.max(7, 7 * s)}px ui-sans-serif, system-ui, sans-serif`;
-  g.fillStyle = '#6e6045';
+  g.font = `700 ${Math.max(8, 7.5 * s)}px ui-sans-serif, system-ui, sans-serif`;
+  g.fillStyle = '#54482f';
   g.fillText('PEAK', lx - lr - 3 * s, ly);
 
   // Needle.
@@ -382,18 +418,18 @@ function drawVu(now) {
 function drawBars(meter) {
   const { g, w, h } = prep($('bars'));
   const top = 6;
-  const bottom = h - 20;
-  const axisW = 24;
+  const bottom = h - 22;
+  const axisW = 28;
   const y = (db) => top + ((bottom - top) * (0 - clamp(db, BAR_MIN, 0))) / -BAR_MIN;
 
-  g.font = '9px ui-monospace, Menlo, monospace';
+  g.font = '600 10.5px ui-monospace, Menlo, monospace';
   g.textAlign = 'right';
   g.textBaseline = 'middle';
   for (let db = 0; db >= BAR_MIN; db -= 6) {
     const yy = Math.round(y(db)) + 0.5;
-    g.fillStyle = '#556070';
+    g.fillStyle = C.axis;
     g.fillText(db === 0 ? '0' : minus(String(db)), axisW - 4, yy);
-    g.strokeStyle = '#1b2027';
+    g.strokeStyle = C.grid;
     g.lineWidth = 1;
     g.beginPath();
     g.moveTo(axisW, yy);
@@ -418,17 +454,17 @@ function drawBars(meter) {
     const gr = g.createLinearGradient(0, bottom, 0, top);
     const stop = (db) => clamp((db - BAR_MIN) / -BAR_MIN, 0, 1);
     if (group === 'lufs') {
-      gr.addColorStop(0, '#1f8a58');
-      gr.addColorStop(stop(t - 1), '#3ee08f');
-      gr.addColorStop(stop(t + 1), '#ffbf3c');
-      gr.addColorStop(stop(t + 3), '#ff4d4f');
-      gr.addColorStop(1, '#ff4d4f');
+      gr.addColorStop(0, C.lo);
+      gr.addColorStop(stop(t - 1), C.ok);
+      gr.addColorStop(stop(t + 1), C.warn);
+      gr.addColorStop(stop(t + 3), C.hot);
+      gr.addColorStop(1, C.hot);
     } else {
-      gr.addColorStop(0, '#1f8a58');
-      gr.addColorStop(stop(-9), '#3ee08f');
-      gr.addColorStop(stop(-3), '#ffbf3c');
-      gr.addColorStop(stop(-1), '#ff4d4f');
-      gr.addColorStop(1, '#ff4d4f');
+      gr.addColorStop(0, C.lo);
+      gr.addColorStop(stop(-9), C.ok);
+      gr.addColorStop(stop(-3), C.warn);
+      gr.addColorStop(stop(-1), C.hot);
+      gr.addColorStop(1, C.hot);
     }
     return gr;
   };
@@ -440,7 +476,7 @@ function drawBars(meter) {
   g.textAlign = 'center';
   for (const col of cols) {
     const x = Math.round(cxOf(col.c) - barW / 2);
-    g.fillStyle = '#0d1014';
+    g.fillStyle = C.track;
     g.fillRect(x, top, barW, bottom - top);
     const v = view.bars[col.key];
     if (v > BAR_MIN) {
@@ -449,17 +485,17 @@ function drawBars(meter) {
       g.fillRect(x, yy, barW, bottom - yy);
     }
     // LED segment grooves.
-    g.fillStyle = 'rgba(13,16,20,0.55)';
+    g.fillStyle = C.groove;
     for (let yy = bottom - 3; yy > top; yy -= 3) g.fillRect(x, yy, barW, 1);
 
     const hold = holds[col.key];
     if (hold != null && hold > BAR_MIN) {
-      g.fillStyle = '#e7ebf0';
+      g.fillStyle = C.hold;
       g.fillRect(x, Math.round(y(hold)) - 1, barW, 2);
     }
-    g.fillStyle = '#8a93a0';
-    g.font = '600 9.5px ui-sans-serif, system-ui, sans-serif';
-    g.fillText(col.label, x + barW / 2, bottom + 11);
+    g.fillStyle = C.label;
+    g.font = '700 11.5px ui-sans-serif, system-ui, sans-serif';
+    g.fillText(col.label, x + barW / 2, bottom + 12);
   }
 
   const line = (db, x1, x2, color, text) => {
@@ -473,13 +509,13 @@ function drawBars(meter) {
     g.stroke();
     g.setLineDash([]);
     g.fillStyle = color;
-    g.font = '600 8.5px ui-monospace, Menlo, monospace';
+    g.font = '700 10px ui-monospace, Menlo, monospace';
     g.textAlign = 'left';
     g.fillText(text, x2 + 3, yy);
     g.textAlign = 'center';
   };
-  line(t, cxOf(0.5) - barW / 2 - 3, cxOf(2.5) + barW / 2 + 3, '#ffbf3c', minus(String(t)));
-  line(-1, cxOf(3.9) - barW / 2 - 3, cxOf(4.9) + barW / 2 + 3, '#ff4d4f', '−1');
+  line(t, cxOf(0.5) - barW / 2 - 3, cxOf(2.5) + barW / 2 + 3, C.target, minus(String(t)));
+  line(-1, cxOf(3.9) - barW / 2 - 3, cxOf(4.9) + barW / 2 + 3, C.over, '−1');
 }
 
 // ---------------------------------------------------------------- history
@@ -488,23 +524,23 @@ function drawHistory() {
   const { g, w, h } = prep($('hist'));
   const top = 4;
   const bottom = h - 4;
-  const left = 24;
+  const left = 28;
   const y = (v) => top + ((bottom - top) * (HIST_MAX - clamp(v, HIST_MIN, HIST_MAX))) / (HIST_MAX - HIST_MIN);
 
-  g.fillStyle = '#0d1014';
+  g.fillStyle = C.histBg;
   g.fillRect(left, top, w - left, bottom - top);
-  g.font = '9px ui-monospace, Menlo, monospace';
+  g.font = '600 10.5px ui-monospace, Menlo, monospace';
   g.textAlign = 'right';
   g.textBaseline = 'middle';
   for (let v = -6; v > HIST_MIN; v -= 6) {
     const yy = Math.round(y(v)) + 0.5;
-    g.strokeStyle = '#1b2027';
+    g.strokeStyle = C.grid;
     g.beginPath();
     g.moveTo(left, yy);
     g.lineTo(w, yy);
     g.stroke();
     if (v % 12 === 0 && Math.abs(v - settings.target) > 3) {
-      g.fillStyle = '#556070';
+      g.fillStyle = C.axis;
       g.fillText(minus(String(v)), left - 4, yy);
     }
   }
@@ -520,7 +556,7 @@ function drawHistory() {
     pts.forEach((p, i) => g.lineTo(xOf(i), y(p[1] == null ? HIST_MIN : p[1])));
     g.lineTo(xOf(pts.length - 1), bottom);
     g.closePath();
-    g.fillStyle = 'rgba(58,74,96,0.55)';
+    g.fillStyle = C.histM;
     g.fill();
 
     g.beginPath();
@@ -534,21 +570,22 @@ function drawHistory() {
       else g.moveTo(xOf(i), y(p[0]));
       pen = true;
     });
-    g.strokeStyle = '#5aa9ff';
-    g.lineWidth = 1.6;
+    g.strokeStyle = C.histS;
+    g.lineWidth = 2;
     g.lineJoin = 'round';
     g.stroke();
   }
 
   const ty = Math.round(y(settings.target)) + 0.5;
-  g.strokeStyle = '#ffbf3c';
+  g.strokeStyle = C.target;
+  g.lineWidth = 1;
   g.setLineDash([4, 3]);
   g.beginPath();
   g.moveTo(left, ty);
   g.lineTo(w, ty);
   g.stroke();
   g.setLineDash([]);
-  g.fillStyle = '#ffbf3c';
+  g.fillStyle = C.target;
   g.textAlign = 'right';
   g.fillText(minus(String(settings.target)), left - 4, ty);
 }
@@ -638,6 +675,9 @@ function renderSettings() {
   for (const btn of $('target').querySelectorAll('button')) {
     btn.setAttribute('aria-checked', String(Number(btn.dataset.v) === settings.target));
   }
+  for (const btn of $('theme').querySelectorAll('button')) {
+    btn.setAttribute('aria-checked', String(btn.dataset.v === settings.theme));
+  }
   $('vuRef').value = String(settings.vuRef);
   $('vuRefLabel').textContent = `0 VU = ${minus(String(settings.vuRef))} dBFS`;
   $('autoReset').checked = settings.autoReset;
@@ -645,6 +685,7 @@ function renderSettings() {
 
 function save() {
   chrome.storage.local.set({ ...settings }).catch(() => {});
+  applyTheme();
   renderSettings();
 }
 
@@ -655,6 +696,17 @@ function bindUi() {
     settings.target = Number(btn.dataset.v);
     save();
   });
+  $('theme').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    settings.theme = btn.dataset.v;
+    save();
+  });
+  $('themeBtn').addEventListener('click', () => {
+    settings.theme = isDark() ? 'light' : 'dark';
+    save();
+  });
+  darkQuery.addEventListener('change', () => settings.theme === 'auto' && applyTheme());
   $('vuRef').addEventListener('change', (e) => {
     settings.vuRef = Number(e.target.value);
     save();
@@ -676,6 +728,7 @@ async function init() {
   } catch {
     // defaults
   }
+  applyTheme();
   renderSettings();
   bindUi();
 
