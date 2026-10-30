@@ -1,0 +1,4 @@
+.playwright-mcp/
+test/harness/tone.wav
+test/harness/panel-frame.html
+.DS_Store

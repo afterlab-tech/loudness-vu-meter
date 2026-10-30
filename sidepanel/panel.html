@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loudness &amp; VU Meter</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><svg class="logo" viewBox="0 0 14 14" aria-hidden="true"><rect x="0" y="8" width="3.4" height="6" rx="1" fill="#3ee08f"/><rect x="5.3" y="4" width="3.4" height="10" rx="1" fill="#ffbf3c"/><rect x="10.6" y="0" width="3.4" height="14" rx="1" fill="#ff4d4f"/></svg>LOUDNESS<span class="dot">·</span>VU</div>
+    <div class="status" id="status" data-kind="idle"><i></i><span>接続中…</span></div>
+  </header>
+  <div class="source" id="source" title="">—</div>
+  <div class="notice" id="notice" hidden></div>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>VU</h2>
+      <span class="sub" id="vuRefLabel">0 VU = −18 dBFS</span>
+    </div>
+    <canvas id="vu" class="cv-vu"></canvas>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>LOUDNESS</h2>
+      <span class="sub">BS.1770-4 / EBU R128</span>
+      <button id="reset" class="btn" type="button" title="Integrated・最大値・LRA をリセット">RESET</button>
+    </div>
+
+    <div class="readouts">
+      <div class="ro" id="roS"><label>SHORT-TERM</label><b>—</b><small>LUFS</small></div>
+      <div class="ro" id="roI"><label>INTEGRATED</label><b>—</b><small>LUFS</small></div>
+      <div class="ro" id="roTP"><label>TRUE PEAK MAX</label><b>—</b><small>dBTP</small></div>
+    </div>
+
+    <dl class="minis">
+      <div><dt>MOMENTARY</dt><dd id="miM">—</dd></div>
+      <div><dt>LRA</dt><dd id="miLRA">—</dd></div>
+      <div><dt>MAX S</dt><dd id="miMaxS">—</dd></div>
+      <div><dt>Δ TARGET</dt><dd id="miDelta">—</dd></div>
+      <div><dt>TIME</dt><dd id="miTime">0:00</dd></div>
+    </dl>
+
+    <canvas id="bars" class="cv-bars"></canvas>
+    <div class="hist-head"><span>SHORT-TERM 履歴</span><span class="legend"><i class="lg-s"></i>S <i class="lg-m"></i>M</span></div>
+    <canvas id="hist" class="cv-hist"></canvas>
+  </section>
+
+  <section class="settings">
+    <div class="row">
+      <span class="lbl">ターゲット</span>
+      <div class="seg" id="target" role="radiogroup">
+        <button type="button" data-v="-14" role="radio">−14 LUFS</button>
+        <button type="button" data-v="-23" role="radio">−23 LUFS</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="lbl" for="vuRef">VU 基準 (0 VU)</label>
+      <select id="vuRef">
+        <option value="-12">−12 dBFS</option>
+        <option value="-14">−14 dBFS</option>
+        <option value="-16">−16 dBFS</option>
+        <option value="-18">−18 dBFS (EBU)</option>
+        <option value="-20">−20 dBFS (SMPTE)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label class="lbl" for="autoReset">動画切替で自動リセット</label>
+      <input type="checkbox" id="autoReset" class="toggle">
+    </div>
+    <p class="foot" id="foot">プレーヤーの音量・ミュートは計測値に影響しません。</p>
+  </section>
+
+  <script src="panel.js"></script>
+</body>
+</html>

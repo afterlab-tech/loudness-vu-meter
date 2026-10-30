@@ -1,0 +1,278 @@
+:root {
+  --bg: #0c0e11;
+  --card: #14171c;
+  --card-edge: #1f242b;
+  --ink: #e7ebf0;
+  --ink-dim: #8a93a0;
+  --ink-faint: #555e6b;
+  --green: #3ee08f;
+  --amber: #ffbf3c;
+  --red: #ff4d4f;
+  --blue: #5aa9ff;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 12px/1.4 system-ui, -apple-system, "Hiragino Sans", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { padding: 10px 10px 14px; min-width: 260px; }
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
+.brand .dot { color: var(--ink-faint); }
+.logo { display: block; width: 14px; height: 14px; }
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #1a1e24;
+  color: var(--ink-dim);
+  font-size: 11px;
+  white-space: nowrap;
+  max-width: 62%;
+  overflow: hidden;
+}
+.status span { overflow: hidden; text-overflow: ellipsis; }
+.status i {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+}
+.status[data-kind="live"] { color: var(--ink); }
+.status[data-kind="live"] i { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status[data-kind="wait"] i { background: var(--amber); }
+.status[data-kind="error"] i { background: var(--red); }
+
+.source {
+  margin: 6px 2px 8px;
+  color: var(--ink-dim);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notice {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #2a2112;
+  border: 1px solid #4a3a17;
+  color: #ffd98a;
+  font-size: 11.5px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-radius: 10px;
+  padding: 9px 10px 10px;
+  margin-bottom: 8px;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.card-head h2 {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+.card-head .sub { color: var(--ink-faint); font-size: 10.5px; flex: 1; }
+
+.btn {
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  background: #232831;
+  border: 1px solid #323946;
+  border-radius: 6px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.btn:hover { background: #2b313c; }
+.btn:active { transform: translateY(1px); }
+
+canvas { display: block; width: 100%; }
+.cv-vu { height: 120px; }
+.cv-bars { height: 168px; margin-top: 10px; }
+.cv-hist { height: 96px; }
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.ro {
+  background: #0f1216;
+  border: 1px solid #1c2128;
+  border-radius: 8px;
+  padding: 6px 7px 5px;
+  min-width: 0;
+}
+.ro label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ro b {
+  display: block;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(18px, 7vw, 28px);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  transition: color 0.2s;
+}
+.ro small { color: var(--ink-faint); font-size: 9.5px; }
+.ro[data-tone="ok"] b { color: var(--green); }
+.ro[data-tone="warn"] b { color: var(--amber); }
+.ro[data-tone="over"] b { color: var(--red); }
+
+.minis {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin: 8px 0 0;
+}
+.minis div { min-width: 0; }
+.minis dt {
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.minis dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.hist-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+.legend { display: flex; align-items: center; gap: 4px; }
+.legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-left: 6px; }
+.lg-s { background: var(--blue); }
+.lg-m { background: #3a4a60; }
+
+.settings {
+  background: var(--card);
+  border: 1px solid var(--card-edge);
+  border-radius: 10px;
+  padding: 6px 10px 8px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #1b2027;
+}
+.row:last-of-type { border-bottom: 0; }
+.lbl { color: var(--ink-dim); font-size: 11.5px; }
+
+.seg { display: flex; background: #0f1216; border: 1px solid #262c35; border-radius: 7px; padding: 2px; }
+.seg button {
+  font: inherit;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--ink-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.seg button[aria-checked="true"] { background: #2a313c; color: var(--ink); }
+
+select {
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--ink);
+  background: #0f1216;
+  border: 1px solid #262c35;
+  border-radius: 6px;
+  padding: 3px 6px;
+}
+
+.toggle {
+  appearance: none;
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  background: #2a2f37;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin: 0;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cfd5dc;
+  transition: transform 0.15s;
+}
+.toggle:checked { background: #2c8a5c; }
+.toggle:checked::after { transform: translateX(14px); }
+
+button:focus-visible, select:focus-visible, .toggle:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+
+.foot { margin: 6px 0 0; color: var(--ink-faint); font-size: 10.5px; }

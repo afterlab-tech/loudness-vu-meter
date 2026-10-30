@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>LMeter harness</title>
+  <style>
+    body { margin: 0; display: flex; gap: 16px; font: 13px system-ui; background: #222; color: #ddd; }
+    .page { padding: 16px; flex: 1; }
+    iframe { width: 380px; height: 100vh; border: 0; border-left: 1px solid #444; }
+  </style>
+  <!-- In the extension, content.js runs in the isolated world; loading it before page-hook
+       lets it capture the native volume accessors the same way. -->
+  <script src="stub.js"></script>
+  <script src="../../src/dsp.js"></script>
+  <script src="../../src/content.js"></script>
+  <script src="../../src/page-hook.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h3>Test page (1 kHz, −18 dBFS stereo)</h3>
+    <video id="v" src="tone.wav" controls loop width="320" height="60"></video>
+  </div>
+  <iframe id="panel" src="panel-frame.html"></iframe>
+</body>
+</html>
